@@ -18,6 +18,11 @@ public abstract class AnimalsAdapter<VH extends RecyclerView.ViewHolder>
     setHasStableIds(true);
   }
 
+  public void addToTop(Collection<? extends String> collection) {
+    items.addAll(0, collection);
+    notifyItemRangeInserted(0, collection.size());
+  }
+
   public void add(String object) {
     items.add(object);
     notifyDataSetChanged();

@@ -21,6 +21,7 @@ import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersDecoration;
 import com.timehop.stickyheadersrecyclerview.StickyRecyclerHeadersTouchListener;
 
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 public class MainActivity extends Activity {
 
@@ -35,7 +36,7 @@ public class MainActivity extends Activity {
 
     // Set adapter populated with example dummy data
     final AnimalsHeadersAdapter adapter = new AnimalsHeadersAdapter();
-    adapter.add("Animals below!");
+//    adapter.add("Animals below!");
     adapter.addAll(getDummyDataSet());
     recyclerView.setAdapter(adapter);
 
@@ -61,6 +62,8 @@ public class MainActivity extends Activity {
     final LinearLayoutManager layoutManager = new LinearLayoutManager(this, orientation, isReverseButton.isChecked());
     recyclerView.setLayoutManager(layoutManager);
 
+    // scroll to bottom initially
+    layoutManager.scrollToPosition(adapter.getItemCount() - 1);
     // Add the sticky headers decoration
     final StickyRecyclerHeadersDecoration headersDecor = new StickyRecyclerHeadersDecoration(adapter);
     recyclerView.addItemDecoration(headersDecor);
@@ -108,6 +111,10 @@ public class MainActivity extends Activity {
     return getResources().getStringArray(R.array.animals);
   }
 
+  private String[] getDummyDataSetForLetterA() {
+    return getResources().getStringArray(R.array.a_animals);
+  }
+
   private int getLayoutManagerOrientation(int activityOrientation) {
     if (activityOrientation == ActivityInfo.SCREEN_ORIENTATION_PORTRAIT) {
       return LinearLayoutManager.VERTICAL;
@@ -118,6 +125,9 @@ public class MainActivity extends Activity {
 
   private class AnimalsHeadersAdapter extends AnimalsAdapter<RecyclerView.ViewHolder>
       implements StickyRecyclerHeadersAdapter<RecyclerView.ViewHolder> {
+
+    private boolean alreadyAdded = false;
+
     @Override
     public RecyclerView.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
       View view = LayoutInflater.from(parent.getContext())
@@ -130,15 +140,21 @@ public class MainActivity extends Activity {
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
       TextView textView = (TextView) holder.itemView;
       textView.setText(getItem(position));
+
+      if (!alreadyAdded && position < 3) {
+        alreadyAdded = true;
+        new Handler().postDelayed(new Runnable() {
+          @Override
+          public void run() {
+            addToTop(Arrays.asList(getDummyDataSetForLetterA()));
+          }
+        }, 2000);
+      }
     }
 
     @Override
     public long getHeaderId(int position) {
-      if (position == 0) {
-        return -1;
-      } else {
-        return getItem(position).charAt(0);
-      }
+      return getItem(position).charAt(0);
     }
 
     @Override
